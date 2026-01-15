@@ -95,7 +95,7 @@ void app_main(void) {
         bool ready = enable();
 
         if (dSense && initial_message){
-            printf("Welcome to enhanced Alarm system model 218 -W25")
+            printf("Welcome to enhanced Alarm system model 218 -W25\n");
             initial_message = false;
 
         }
@@ -111,7 +111,7 @@ void app_main(void) {
             // If the ignition Button is pressed...
             if (ready) {
                 //Start the engine if the green LED is on
-                printf("engine starting...");
+                printf("engine starting...\n");
                 gpio_set_level(greenLED_PIN, 0);
                 gpio_set_level(redLED_PIN, 1);
                 return;
@@ -130,7 +130,7 @@ void app_main(void) {
                 }
 
                 if (!pSense){
-                    printf("Passenger seat nmot occupied\n");
+                    printf("Passenger seat not occupied\n");
                 }
                 if (!psbelt){
                     printf("Passenger seatbelt not fastened\n");
