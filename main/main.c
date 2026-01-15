@@ -100,16 +100,19 @@ void app_main(void) {
 
         if(ready){
             gpio_set_level(greenLED_PIN, 1);
+            if (ignitEn){
+                printf("Engine starting\n");
+                gpio_set_level(greenLED_PIN, 0);
+                gpio_set_level(redLED_PIN, 1);
+                return;
+            }
+            else{
+                continue;
+            }
         }
 
-        if (ready && ignitEn){
-            printf("engine starting...");
-            gpio_set_level(greenLED_PIN, 0);
-            gpio_set_level(redLED_PIN, 1);
-            return;
-        }
         else if(!ready && ignitEn){
-            printf("ignition inhibited!");
+            printf("ignition inhibited!\n");
             gpio_set_level(Alarm, 1);
             return;
         }
