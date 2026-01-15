@@ -26,49 +26,33 @@ bool psbelt = false;
  * driver seat belt, driver is seated etc.
  */
 bool enable(void){
-    bool IgnitReady = true;
 
     bool dslvl = gpio_get_level(driveSeatSense);
     bool dsbeltlvl = gpio_get_level(driveSeatBelt);
     bool pslvl = gpio_get_level(passengerSeatSense);
     bool psbltlvl = gpio_get_level(passengerSeatBelt);
 
-    if (dslvl){
+    if (!dslvl){
         dSense = true; //Driver sensor
     }
     else{dSense = false;}
 
-    if (dsbeltlvl){
+    if (!dsbeltlvl){
         dsbelt = true; // driver seatbelt sensor
     }
     else{dsbelt = false;}
 
-    if (pslvl){
+    if (!pslvl){
         pSense = true; // passenger seat level
     }
     else{pSense = false;}
 
-    if (psbltlvl){
+    if (!psbltlvl){
         psbelt = true; // passenger seatbelt level
     }
     else{psbelt = false;}
-    if (!dSense){
-            printf("Driver not seated\n");
-            IgnitReady = false;
-        }
-    else if (!dsbelt){
-            printf("Driver seatbelt is not on\n");
-            IgnitReady = false;
-        }
 
-    else if (!pSense){
-            printf("Passenger is not seated\n");
-            IgnitReady = false;
-        }
-    else if (!psbelt){
-            printf("Passenger seatbelt is not on\n");
-            IgnitReady = false;
-        }           
+    bool IgnitReady = dSense && dsbelt && pSense && psbelt;
     return IgnitReady;
     }
     
@@ -87,38 +71,79 @@ void app_main(void) {
 
     gpio_set_direction(greenLED_PIN, GPIO_MODE_OUTPUT);
     gpio_set_direction(redLED_PIN, GPIO_MODE_OUTPUT);
+    gpio_set_direction(Alarm, GPIO_MODE_OUTPUT);
     gpio_set_direction(ignitionButton, GPIO_MODE_INPUT);
     gpio_set_direction(driveSeatBelt, GPIO_MODE_INPUT);
     gpio_set_direction(passengerSeatBelt, GPIO_MODE_INPUT);
     gpio_set_direction(driveSeatSense, GPIO_MODE_INPUT);
     gpio_set_direction(passengerSeatSense, GPIO_MODE_INPUT);
-    gpio_set_direction(Alarm, GPIO_MODE_OUTPUT);
+
+    gpio_pullup_en(ignitionButton);
+    gpio_pullup_en(driveSeatBelt);
+    gpio_pullup_en(driveSeatSense);
+    gpio_pullup_en(passengerSeatBelt);
+    gpio_pullup_en(passengerSeatSense);
+
+    gpio_set_level (greenLED_PIN, 0);
+    gpio_set_level (redLED_PIN, 0);
+    gpio_set_level (Alarm, 0);
+
+    bool initial_message = true;
 
     while(1){
-        bool ignitEn = gpio_get_level(ignitionButton);
+        bool ignitEn = !gpio_get_level(ignitionButton);
         bool ready = enable();
+
+        if (dSense && initial_message){
+            printf("Welcome to enhanced Alarm system model 218 -W25")
+            initial_message = false;
+
+        }
 
         if(ready){
             gpio_set_level(greenLED_PIN, 1);
-            if (ignitEn){
-                printf("Engine starting\n");
+        }
+        else {
+            gpio_set_level(greenLED_PIN, 0);
+        }
+
+        if(ignitEn){
+            // If the ignition Button is pressed...
+            if (ready) {
+                //Start the engine if the green LED is on
+                printf("engine starting...");
                 gpio_set_level(greenLED_PIN, 0);
                 gpio_set_level(redLED_PIN, 1);
                 return;
             }
-            else{
-                continue;
+
+            else {
+                //Start the alarm and display the Error message otherwise.
+                gpio_set_level (Alarm, 1);
+
+                if (!dSense){
+                    printf("Driver seat not occupied\n");
+                }
+                
+                if (!dsbelt){
+                    printf("Driver seatbelt not fastened\n");
+                }
+
+                if (!pSense){
+                    printf("Passenger seat nmot occupied\n");
+                }
+                if (!psbelt){
+                    printf("Passenger seatbelt not fastened\n");
+                }
+                vTaskDelay (3000/ portTICK_PERIOD_MS);
             }
         }
+        else {
+            gpio_set_level (Alarm, 0);
+        }
 
-        else if(!ready && ignitEn){
-            printf("ignition inhibited!\n");
-            gpio_set_level(Alarm, 1);
-            return;
-        }
-        else{
-            vTaskDelay(25 / portTICK_PERIOD_MS);
-        }
+        //Debounce time for the check
+        vTaskDelay(25 / portTICK_PERIOD_MS);
 
     }
 }
