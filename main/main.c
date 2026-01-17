@@ -55,11 +55,8 @@ bool enable(void){
     bool IgnitReady = dSense && dsbelt && pSense && psbelt;
     return IgnitReady;
     }
-    
 
-
-void app_main(void) {
-
+void pinConfig(void){
     gpio_reset_pin(greenLED_PIN);
     gpio_reset_pin(redLED_PIN);
     gpio_reset_pin(ignitionButton);
@@ -84,12 +81,14 @@ void app_main(void) {
     gpio_pullup_en(passengerSeatBelt);
     gpio_pullup_en(passengerSeatSense);
 
-    gpio_set_level (greenLED_PIN, 0);
-    gpio_set_level (redLED_PIN, 0);
-    gpio_set_level (Alarm, 0);
+    gpio_set_level(greenLED_PIN, 0);
+    gpio_set_level(redLED_PIN, 0);
+    gpio_set_level(Alarm, 0);
 
+}
+void app_main(void) {
+    pinConfig();
     bool initial_message = true;
-
     while(1){
         bool ignitEn = !gpio_get_level(ignitionButton);
         bool ready = enable();
