@@ -56,6 +56,13 @@ bool enable(void){
     return IgnitReady;
     }
 
+    /**
+     * Will configure all of the pins within the design resetting all of the pins within the design to a known state
+     * setting the direction to either input or output 
+     * enabling pullup resistors within the ESP
+     * And finally setting all of the output pins to zero
+     */
+
 void pinConfig(void){
     gpio_reset_pin(greenLED_PIN);
     gpio_reset_pin(redLED_PIN);
@@ -107,7 +114,6 @@ void app_main(void) {
         }
 
         if(ignitEn){
-            // If the ignition Button is pressed...
             if (ready) {
                 //Start the engine if the green LED is on
                 printf("engine starting...\n");
@@ -117,7 +123,6 @@ void app_main(void) {
             }
 
             else {
-                //Start the alarm and display the Error message otherwise.
                 gpio_set_level (Alarm, 1);
 
                 if (!dSense){
@@ -140,8 +145,6 @@ void app_main(void) {
         else {
             gpio_set_level (Alarm, 0);
         }
-
-        //Debounce time for the check
         vTaskDelay(25 / portTICK_PERIOD_MS);
 
     }
