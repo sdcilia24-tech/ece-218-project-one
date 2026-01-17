@@ -115,7 +115,6 @@ void app_main(void) {
 
         if(ignitEn){
             if (ready) {
-                //Start the engine if the green LED is on
                 printf("engine starting...\n");
                 gpio_set_level(greenLED_PIN, 0);
                 gpio_set_level(redLED_PIN, 1);
