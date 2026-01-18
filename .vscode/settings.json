@@ -13,7 +13,7 @@
   "clangd.arguments": [
     "--background-index",
     "--query-driver=**",
-    "--compile-commands-dir=c:\\Users\\sdcil\\eceprojectone\\build"
+    "--compile-commands-dir=c:\\Desktop\\ECE-218\\eceprojectone\\build"
   ],
   "idf.flashType": "UART",
   "idf.portWin": "COM8"
